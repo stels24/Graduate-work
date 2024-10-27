@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Dashboard</h2>
+        <p>Welcome, {{ user.username }}!</p>
+        <a href="{% url 'logout' %}?next=/" class="btn btn-danger">Logout</a>
+        <a href="{% url 'add_task' %}" class="btn btn-success">Add Task</a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.name }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ task.category }}</td>
+                    <td>{{ task.status }}</td>
+                    <td>
+                        <a href="{% url 'edit_task' task.id %}" class="btn btn-primary">Edit</a>
+                        <a href="{% url 'delete_task' task.id %}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>
