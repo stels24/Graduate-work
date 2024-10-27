@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - To-Do List</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <h2>Task List</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Data Created</th>
+            <th>Data End Plan</th>
+            <th>Status</th>
+            <th>Data End</th>
+            <th>Actions</th>
+        </tr>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.name }}</td>
+            <td>{{ task.description }}</td>
+            <td>{{ task.category }}</td>
+            <td>{{ task.data_created }}</td>
+            <td>{{ task.data_end_plan }}</td>
+            <td>{{ task.status }}</td>
+            <td>{{ task.data_end }}</td>
+            <td>
+                <a href="/edit-task/{{ task.id }}">Edit</a>
+                <form action="/delete-task/{{ task.id }}" method="post">
+                    <input type="submit" value="Delete">
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h2>Filter Tasks</h2>
+<form action="/filter-tasks" method="post">
+    <label for="date">Date:</label>
+    <input type="date" id="date" name="date">
+    <br>
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name">
+    <br>
+    <label for="status">Status:</label>
+    <select id="status" name="status">
+        <option value="">All</option>
+        <option value="planned">Planned</option>
+        <option value="in_progress">In Progress</option>
+        <option value="completed">Completed</option>
+    </select>
+    <br>
+    <label for="priority">Priority:</label>
+    <select id="priority" name="priority">
+        <option value="">All</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+    </select>
+    <br>
+    <input type="submit" value="Filter">
+</form>
+
+    <h2>Task Statistics</h2>
+    <p>Total Tasks: {{ statistics.total_tasks }}</p>
+    <p>Completed Tasks: {{ statistics.completed_tasks }}</p>
+    <p>In Progress Tasks: {{ statistics.in_progress_tasks }}</p>
+    <p>Planned Tasks: {{ statistics.planned_tasks }}</p>
+    <button onclick="location.href='/add-task'">Add Task</button>
+</body>
+</html>
+

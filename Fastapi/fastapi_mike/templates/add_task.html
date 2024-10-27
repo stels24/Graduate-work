@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Task - To-Do List</title>
+</head>
+<body>
+    <h1>Add Task</h1>
+    <form action="/add_task" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+        <br>
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category" required>
+        <br>
+        <label for="data_end_plan">Planned End Date:</label>
+        <input type="datetime-local" id="data_end_plan" name="data_end_plan" required>
+        <br>
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+            <option value="planned">Planned</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+        </select>
+        <br>
+        <input type="submit" value="Add Task">
+    </form>
+</body>
+</html>
