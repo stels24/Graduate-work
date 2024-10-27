@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{{ task.name }}{% endblock %}
+
+{% block content %}
+    <h1>{{ task.name }}</h1>
+    <p><strong>Category:</strong> {{ task.category }}</p>
+    <p><strong>Status:</strong> {{ task.status }}</p>
+    <p><strong>Data Created:</strong> {{ task.data_created }}</p>
+    <p><strong>Data End Plan:</strong> {{ task.data_end_plan }}</p>
+    <p><strong>Description:</strong> {{ task.description }}</p>
+    <a href="{{ url_for('update_task', task_id=task.id) }}" class="btn btn-warning">Update</a>
+    <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST" class="d-inline">
+        <input type="submit" value="Delete" class="btn btn-danger">
+    </form>
+{% endblock %}

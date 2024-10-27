@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ legend }}{% endblock %}
+
+{% block content %}
+    <h1>{{ legend }}</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.name.label }}
+            {{ form.name(class="form-control") }}
+            {% for error in form.name.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }}
+            {{ form.description(class="form-control") }}
+            {% for error in form.description.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.category.label }}
+            {{ form.category(class="form-control") }}
+            {% for error in form.category.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.data_end_plan.label }}
+            {{ form.data_end_plan(class="form-control") }}
+            {% for error in form.data_end_plan.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+        </div>
+		<div class="form-group">
+			<label for="status">Status</label>
+			<select class="form-control" id="status" name="status">
+				<option value="запланирована" {% if form.status.data == 'запланирована' %}selected{% endif %}>запланирована</option>
+				<option value="в работе" {% if form.status.data == 'в работе' %}selected{% endif %}>в работе</option>
+				<option value="выполнена" {% if form.status.data == 'выполнена' %}selected{% endif %}>выполнена</option>
+    </select>
+</div>
+
+		<div class="form-group">   
+		</div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+{% endblock %}
