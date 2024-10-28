@@ -48,5 +48,3 @@ python manage.py createsuperuser
 
 python manage.py runserver
 Откройте веб-браузер и перейдите по адресу http://localhost:8000.
-Лицензия
-Этот проект лицензирован под лицензию MIT. Подробности см. в файле LICENSE.
