@@ -164,7 +164,6 @@ async def dashboard(request: Request):
 @app.post("/add_task")
 async def add_task_post(request: Request, task_data: TaskForm = Depends()):
     db = SessionLocal()
-    logging.WARNING(task_data)
     new_task = Task(
         name=task_data.name,
         description=task_data.description,
@@ -241,39 +240,3 @@ async def filter_tasks(filter_data: FilterForm = Depends()):
     db.close()
 
     return {"tasks": tasks}
-
-
-from sqlalchemy.exc import IntegrityError
-
-
-def create_test_user_and_tasks():
-    db = SessionLocal()
-    existing_user = db.query(User).filter(User.username == "testuser").first()
-
-    if existing_user:
-        print("Test user already exists")
-    else:
-        test_user = User(username="testuser", hashed_password=pwd_context.hash("1q2w3e"))
-        db.add(test_user)
-        db.commit()
-        db.refresh(test_user)
-
-        for i in range(10):
-            task = Task(
-                name=f"Task {i + 1}",
-                description=f"Description for task {i + 1}",
-                category="Test Category",
-                data_created=datetime.now(),
-                data_end_plan=datetime.now() + timedelta(days=7),
-                status="Planned",
-                user_id=test_user.id
-            )
-            db.add(task)
-
-        try:
-            db.commit()
-        except IntegrityError:
-            db.rollback()
-            print("Error adding tasks to database")
-
-    db.close()
