@@ -54,8 +54,5 @@ flask run
 Отфильтруйте задачи по статусу, используя раскрывающееся меню "Фильтр".
 Сортируйте задачи по дате создания или приоритету, используя раскрывающееся меню "Сортировка".
 
-License
-This project is licensed under the MIT License. See the LICENSE file for more information.
-
 
 You can save this content to a file named `readme.txt` in the root directory of your project.
