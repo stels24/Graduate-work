@@ -24,13 +24,19 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # SQLAlchemy setup
 DATABASE_URL = "sqlite:///./fastapimike.db"
-engine = create_engine(DATABASE_URL)
+# connect_args={"check_same_thread": False} - настройка необходима при работе с базой данных sqlite
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
 # User model
 class User(Base):
+    """Класс описания пользователя
+
+    Args:
+        Base (_type_): Базовое представление модели таблицы БД с классом
+    """
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
@@ -40,6 +46,11 @@ class User(Base):
 
 # Task model
 class Task(Base):
+    """Класс описания модели задачки
+
+    Args:
+        Base (_type_): Базовое представление модели таблицы БД с классом
+    """
     __tablename__ = "tasks"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
@@ -58,6 +69,11 @@ Base.metadata.create_all(bind=engine)
 
 # Pydantic models for task form and filter form
 class TaskForm(BaseModel):
+    """Класс для описания формы задачки для валидации Pydantic'ом
+
+    Args:
+        BaseModel (_type_): Базовая модель разбора и валидации данных с формы ввода данных
+    """
     name: str
     description: str
     category: str
@@ -66,6 +82,11 @@ class TaskForm(BaseModel):
 
 
 class FilterForm(BaseModel):
+    """Класс для описания формы фильтрации для валидации Pydantic'ом
+
+    Args:
+        BaseModel (_type_): Базовая модель разбора и валидации данных с формы ввода данных
+    """
     date: Optional[datetime]
     name: Optional[str]
     status: Optional[str]
@@ -75,11 +96,29 @@ class FilterForm(BaseModel):
 # Endpoints for login, registration, task addition, editing, deletion, and filtering
 @app.get("/")
 async def index(request: Request):
+    """Загрузка главной страницы при запуске приложения
+
+    Args:
+        request (Запрос): Простой запрос
+
+    Returns:
+        Форма стартового экрана : Возвращает сам запрос с шаблоном загруженной стартовой страницы
+    """
     return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.post("/login")
 async def login(request: Request, username: str = Form(...), password: str = Form(...)):
+    """Метод авторизации
+
+    Args:
+        request (Request): Запрос
+        username (str, optional): Имя пользователя. Defaults to Form(...).
+        password (str, optional): Пароль. Defaults to Form(...).
+
+    Returns:
+        Форма ответа перехода: Шаблон личного кабинета после авторизации либо сообщение, что не совпадает имя пользователя или пароль
+    """
     db = SessionLocal()
     user = db.query(User).filter(User.username == username).first()
     db.close()
@@ -95,11 +134,28 @@ async def login(request: Request, username: str = Form(...), password: str = For
 
 @app.get("/register")
 async def register(request: Request):
+    """Метод получения шаблона страницы регистрации
+
+    Args:
+        request (Request): Запрос
+
+    Returns:
+        _type_: Возвращает построенный шаблон на страницу вызова
+    """
     return templates.TemplateResponse("register.html", {"request": request})
 
 
 @app.post("/register")
 async def register(username: str = Form(...), password: str = Form(...)):
+    """Метод создания записи в БД с регистрацией пользователя
+
+    Args:
+        username (str, optional): Логин пользователя. Defaults to Form(...).
+        password (str, optional): Пароль в незашифрованном виде, который будет зашифрован на этапе поступления в БД. Defaults to Form(...).
+
+    Returns:
+        Перенаправление: Перенаправление на страницу логина
+    """
     db = SessionLocal()
     existing_user = db.query(User).filter(User.username == username).first()
 
@@ -114,16 +170,33 @@ async def register(username: str = Form(...), password: str = Form(...)):
     db.refresh(new_user)
     db.close()
     response = RedirectResponse(url="/login")
-    return response  #{"message": "Registration successful"}
+    return response
 
 
 @app.get("/add-task")
 async def add_task_get(request: Request):
+    """Метод получения формы создания заявки
+
+    Args:
+        request (Request): Запрос
+
+    Returns:
+        Шаблон: Шаблон формы создания заявки вида html-страницы
+    """ 
     return templates.TemplateResponse("add_task.html", {"request": request})
 
 
 @app.get("/edit-task/{task_id}")
 async def edit_task(request: Request, task_id: int):
+    """Получение формы редактирования задачки
+
+    Args:
+        request (Request): Запрос
+        task_id (int): ИД задачки
+
+    Returns:
+        Сообщение: Сообщение об отсутствии задачки, если её нет либо форма редактирования задачи
+    """
     db = SessionLocal()
     task = db.query(Task).filter(Task.id == task_id).first()
     db.close()
@@ -136,6 +209,14 @@ async def edit_task(request: Request, task_id: int):
 
 @app.get("/dashboard")
 async def dashboard(request: Request):
+    """Метод получения таблицы со списком задач (дашборд)
+
+    Args:
+        request (Request): Запрос
+
+    Returns:
+        Щаблон с дашбордом: Шаблон страницы с доской задач (дашбордом)
+    """
     if "user_id" not in request.session:
         return RedirectResponse(url="/login")
 
@@ -163,6 +244,15 @@ async def dashboard(request: Request):
 
 @app.post("/add_task")
 async def add_task_post(request: Request, task_data: TaskForm = Depends()):
+    """Метод добавления задачки БД после её создания
+
+    Args:
+        request (Request): Запрос
+        task_data (TaskForm, optional): Форма со страницы со всеми необходимыми параметрами для создания новой записи в БД. Defaults to Depends().
+
+    Returns:
+        Ответ: Сообщение об успешном добавлении задачки в БД и на даш-борд
+    """
     db = SessionLocal()
     new_task = Task(
         name=task_data.name,
@@ -183,6 +273,16 @@ async def add_task_post(request: Request, task_data: TaskForm = Depends()):
 
 @app.post("/edit-task/{task_id}")
 async def edit_task(request: Request, task_id: int, task_data: TaskForm = Depends()):
+    """Сохранение изменения параметров задачки
+
+    Args:
+        request (Request): Запрос
+        task_id (int): Идентификатор задачки в БД для её обновления
+        task_data (TaskForm, optional): Данные с формы. Defaults to Depends().
+
+    Returns:
+        Перенаправление: Перенаправление на страницу со списком задач
+    """
     db = SessionLocal()
     task = db.query(Task).filter(Task.id == task_id).first()
 
@@ -205,6 +305,14 @@ async def edit_task(request: Request, task_id: int, task_data: TaskForm = Depend
 
 @app.post("/delete-task/{task_id}")
 async def delete_task(task_id: int):
+    """Подтверждение удаления задачки
+
+    Args:
+        task_id (int): ИД задачки
+
+    Returns:
+        Сообщение: Сообщение об успешном удалении задачи в БД или сообщение, что такая задачка не найдена
+    """
     db = SessionLocal()
     task = db.query(Task).filter(Task.id == task_id).first()
 
@@ -221,6 +329,14 @@ async def delete_task(task_id: int):
 
 @app.post("/filter-tasks")
 async def filter_tasks(filter_data: FilterForm = Depends()):
+    """Отправка запроса фильтрации списка задач
+
+    Args:
+        filter_data (FilterForm, optional): Данные с формы для применения фильтра. Defaults to Depends().
+
+    Returns:
+        Ответ: Список задач соответствующих правилам фильтра
+    """
     db = SessionLocal()
     query = db.query(Task)
 
