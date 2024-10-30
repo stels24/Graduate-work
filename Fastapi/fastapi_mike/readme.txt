@@ -1,13 +1,13 @@
-# To-Do List Application
+# Приложение для составления списка дел
 
-This is a simple To-Do List application built with FastAPI and SQLAlchemy. The frontend is built with HTML, CSS, and JavaScript.
+Это простое приложение для составления списка дел, созданное с помощью FastAPI и SQLAlchemy. Интерфейс построен с использованием HTML, CSS и JavaScript.
 
 ## Features
 
-- User registration and authentication
-- Add, edit, and delete tasks
-- Filter tasks by date, name, status, and priority
-- Task statistics on the dashboard
+- Регистрация и аутентификация пользователя
+- Добавление, редактирование и удаление задач
+- Фильтрация задач по дате, имени, статусу и приоритету
+- Статистика задач на панели мониторинга
 
 ## Installation
 
@@ -30,13 +30,13 @@ cd .\Fastapi\fastapi_mike\
 uvicorn main:app --reload
 ```
 
-4. Open your browser and go to `http://localhost:8000` to view the application.
+4. Откройте свой браузер и перейдите на страницу `http://localhost:8000 ` чтобы просмотреть приложение.
 
 ## Usage
 
-- Register a new user or log in with an existing account.
-- Add new tasks, edit existing tasks, or delete tasks.
-- Filter tasks by date, name, status, and priority.
-- View task statistics on the dashboard.
+- Зарегистрируйте нового пользователя или войдите в систему с существующей учетной записью.
+- Добавляйте новые задачи, редактируйте существующие задачи или удаляйте задачи.
+- Фильтруйте задачи по дате, названию, статусу и приоритету.
+- Просмотр статистики задач на панели мониторинга.
 
 
