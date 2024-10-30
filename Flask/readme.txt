@@ -2,59 +2,56 @@
 
 
 
-## Features                                       ## Особенности #
+## Особенности                                       
 
-- User registration and authentication            #Регистрация и аутентификация пользователя#
-- Create, read, update, and delete tasks          #Создание, чтение, обновление и удаление задач#
-- Filter tasks by status (all, active, completed) #Фильтровать задачи по статусу (все, активные, завершенные)#
-- Sort tasks by date created or priority          #Сортировка задач по дате создания или приоритету#
-- Responsive design using Bootstrap               #Адаптивный дизайн с использованием Bootstrap#
+- Регистрация и аутентификация пользователя
+- Создание, чтение, обновление и удаление задач
+- Фильтровать задачи по статусу (все, активные, завершенные)
+- Сортировка задач по дате создания или приоритету#
+- Адаптивный дизайн с использованием Bootstrap
 
-## Installation                                   #Инсталяция приложения"
+## Инсталяция приложения
 
 1. Clone the repository:
 
 ```bash
 git clone https://github.com/yourusername/todo-list.git
-Change into the project directory:
+Перейдите в каталог проекта:
 
 cd todo-list
-Create a virtual environment (optional but recommended): #Создание виртуальной среды (необязательно,
-                                                         но рекомендуется)#
-
+Создание виртуальной среды (необязательно, но рекомендуется): 
+                                                         
 python -m venv venv
-Activate the virtual environment (optional but recommended): #Активация виртуальной среды (необязательно,
-                                                             но рекомендуется):#
+
+Активация виртуальной среды (необязательно, но рекомендуется): 
+                                                            
 On Windows:
 
 venv\Scripts\activate
 On macOS and Linux:
 
 source venv/bin/activate
-Install the required packages:                     #Установите необходимые пакеты#
+Install the required packages:                    
 
 pip install -r requirements.txt
-Set the secret key for the Flask application:      #Установите код для приложения#
+Установите секретный ключ для приложения Flask:     
 
 export SECRET_KEY=your_secret_key
-Replace your_secret_key with a secret key of your choice.  #Замените your_secret_key на секретный ключ по вашему выбору#
+Replace your_secret_key with a secret key of your choice. 
 
-Run the database migrations:                        #Запустите миграцию базы данных#
+Запустите миграцию базы данных:                       
 
-flask db upgrade
-Run the application:
+обновление flask db
+Запустите приложение:
 
 flask run
-Open your browser and navigate to http://127.0.0.1:5000/.
-Usage
-Register for an account or log in with an existing account.
-Create new tasks by clicking the "New Task" button.
-View, update, or delete tasks by clicking the corresponding buttons in the tasks table.
-Filter tasks by status using the filter dropdown menu.
-Sort tasks by date created or priority using the sort dropdown menu.
-Contributing
-Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit
-a pull request.
+Откройте свой браузер и перейдите по ссылке http://127.0.0.1:5000 /.
+Использование
+Зарегистрируйтесь для создания учетной записи или войдите в систему с существующей учетной записью.
+Создайте новые задачи, нажав на кнопку "Новая задача".
+Просматривайте, обновляйте или удаляйте задачи, нажимая соответствующие кнопки в таблице задач.
+Отфильтруйте задачи по статусу, используя раскрывающееся меню "Фильтр".
+Сортируйте задачи по дате создания или приоритету, используя раскрывающееся меню "Сортировка".
 
 License
 This project is licensed under the MIT License. See the LICENSE file for more information.
