@@ -32,6 +32,7 @@ source venv/bin/activate  # на Windows используйте `venv\Scripts\ac
 Установите зависимости из файла requirements.txt:
 
 pip install -r requirements.txt
+
 Создайте файл .env в корневом каталоге проекта и укажите настройки базы данных:
 
 SECRET_KEY=your_secret_key
@@ -41,9 +42,11 @@ DATABASE_URL=sqlite:///db.sqlite3
 Примените миграции:
 
 python manage.py migrate
+
 Создайте суперпользователя:
 
 python manage.py createsuperuser
+
 Запустите сервер разработки:
 
 python manage.py runserver
