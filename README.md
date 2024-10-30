@@ -221,3 +221,13 @@ Django:
 Плюсы: Полный набор инструментов для разработки веб-приложений, безопасность, быстрое прототипирование.
 Минусы: Тяжелый для небольших проектов, сложнее в освоении.
 Когда использовать: Подходит для крупных приложений с комплексной бизнес-логикой, таких как интернет-магазины и CRM-системы.
+
+## Сравнительная таблица фреймворков
+
+![](<html><head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=
+=3Dutf-8" /><meta http-equiv=3D"Content-Style-Type" content=3D"text/css" />=
+<meta name=3D"generator" content=3D"Aspose.Words for .NET 24.9.0" /><title>=
+</title></head><body style=3D"font-family:'Times New Roman'; font-size:12pt=
+"><div><p style=3D"margin-top:0pt; margin-bottom:0pt"><span>&#xa0;</span></=
+p></div></body></html>)
+
