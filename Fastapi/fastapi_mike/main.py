@@ -1,21 +1,25 @@
-import logging
-from datetime import datetime, timedelta
-from typing import Optional
-
-import uvicorn
-from fastapi import FastAPI, Form, Depends
-from fastapi import Request
+from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from passlib.context import CryptContext
-from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, Session
+from sqlalchemy.ext.declarative import declarative_base
+from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
+from passlib.context import CryptContext
+from sqlalchemy import or_
+from datetime import datetime, timedelta
+from fastapi.responses import HTMLResponse
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.authentication import AuthenticationMiddleware
+from fastapi import Request
+from fastapi.responses import RedirectResponse
+import uvicorn
+from fastapi.security import OAuth2PasswordBearer
 
 app = FastAPI()
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # Add session middleware
 app.add_middleware(SessionMiddleware, secret_key="your-secret-key")
 
@@ -24,18 +28,14 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # SQLAlchemy setup
 DATABASE_URL = "sqlite:///./fastapimike.db"
-# connect_args={"check_same_thread": False} - настройка необходима при работе с базой данных sqlite
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-
 # User model
 class User(Base):
-    """Класс описания пользователя
-
-    Args:
-        Base (_type_): Базовое представление модели таблицы БД с классом
+    """
+    Модель пользователя для хранения информации о пользователях.
     """
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -43,13 +43,10 @@ class User(Base):
     hashed_password = Column(String)
     tasks = relationship("Task", back_populates="user")
 
-
 # Task model
 class Task(Base):
-    """Класс описания модели задачки
-
-    Args:
-        Base (_type_): Базовое представление модели таблицы БД с классом
+    """
+    Модель задачи для хранения информации о задачах.
     """
     __tablename__ = "tasks"
     id = Column(Integer, primary_key=True, index=True)
@@ -63,16 +60,12 @@ class Task(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="tasks")
 
-
 Base.metadata.create_all(bind=engine)
-
 
 # Pydantic models for task form and filter form
 class TaskForm(BaseModel):
-    """Класс для описания формы задачки для валидации Pydantic'ом
-
-    Args:
-        BaseModel (_type_): Базовая модель разбора и валидации данных с формы ввода данных
+    """
+    Модель формы задачи для валидации данных задачи.
     """
     name: str
     description: str
@@ -80,44 +73,27 @@ class TaskForm(BaseModel):
     data_end_plan: datetime
     status: str
 
-
 class FilterForm(BaseModel):
-    """Класс для описания формы фильтрации для валидации Pydantic'ом
-
-    Args:
-        BaseModel (_type_): Базовая модель разбора и валидации данных с формы ввода данных
+    """
+    Модель формы фильтра для валидации данных фильтра.
     """
     date: Optional[datetime]
     name: Optional[str]
     status: Optional[str]
     priority: Optional[str]
 
-
 # Endpoints for login, registration, task addition, editing, deletion, and filtering
 @app.get("/")
 async def index(request: Request):
-    """Загрузка главной страницы при запуске приложения
-
-    Args:
-        request (Запрос): Простой запрос
-
-    Returns:
-        Форма стартового экрана : Возвращает сам запрос с шаблоном загруженной стартовой страницы
+    """
+    Маршрут для отображения главной страницы.
     """
     return templates.TemplateResponse("index.html", {"request": request})
 
-
 @app.post("/login")
 async def login(request: Request, username: str = Form(...), password: str = Form(...)):
-    """Метод авторизации
-
-    Args:
-        request (Request): Запрос
-        username (str, optional): Имя пользователя. Defaults to Form(...).
-        password (str, optional): Пароль. Defaults to Form(...).
-
-    Returns:
-        Форма ответа перехода: Шаблон личного кабинета после авторизации либо сообщение, что не совпадает имя пользователя или пароль
+    """
+    Маршрут для аутентификации пользователя.
     """
     db = SessionLocal()
     user = db.query(User).filter(User.username == username).first()
@@ -131,30 +107,17 @@ async def login(request: Request, username: str = Form(...), password: str = For
     request.session["user_id"] = user.id
     return response
 
-
 @app.get("/register")
 async def register(request: Request):
-    """Метод получения шаблона страницы регистрации
-
-    Args:
-        request (Request): Запрос
-
-    Returns:
-        _type_: Возвращает построенный шаблон на страницу вызова
+    """
+    Маршрут для отображения страницы регистрации.
     """
     return templates.TemplateResponse("register.html", {"request": request})
 
-
 @app.post("/register")
 async def register(username: str = Form(...), password: str = Form(...)):
-    """Метод создания записи в БД с регистрацией пользователя
-
-    Args:
-        username (str, optional): Логин пользователя. Defaults to Form(...).
-        password (str, optional): Пароль в незашифрованном виде, который будет зашифрован на этапе поступления в БД. Defaults to Form(...).
-
-    Returns:
-        Перенаправление: Перенаправление на страницу логина
+    """
+    Маршрут для регистрации пользователя.
     """
     db = SessionLocal()
     existing_user = db.query(User).filter(User.username == username).first()
@@ -170,32 +133,19 @@ async def register(username: str = Form(...), password: str = Form(...)):
     db.refresh(new_user)
     db.close()
     response = RedirectResponse(url="/login")
-    return response
-
+    return response #{"message": "Registration successful"}
 
 @app.get("/add-task")
 async def add_task_get(request: Request):
-    """Метод получения формы создания заявки
-
-    Args:
-        request (Request): Запрос
-
-    Returns:
-        Шаблон: Шаблон формы создания заявки вида html-страницы
-    """ 
+    """
+    Маршрут для отображения страницы добавления задачи.
+    """
     return templates.TemplateResponse("add_task.html", {"request": request})
-
 
 @app.get("/edit-task/{task_id}")
 async def edit_task(request: Request, task_id: int):
-    """Получение формы редактирования задачки
-
-    Args:
-        request (Request): Запрос
-        task_id (int): ИД задачки
-
-    Returns:
-        Сообщение: Сообщение об отсутствии задачки, если её нет либо форма редактирования задачи
+    """
+    Маршрут для отображения страницы редактирования задачи.
     """
     db = SessionLocal()
     task = db.query(Task).filter(Task.id == task_id).first()
@@ -206,16 +156,10 @@ async def edit_task(request: Request, task_id: int):
 
     return templates.TemplateResponse("edit_task.html", {"request": request, "task": task})
 
-
 @app.get("/dashboard")
 async def dashboard(request: Request):
-    """Метод получения таблицы со списком задач (дашборд)
-
-    Args:
-        request (Request): Запрос
-
-    Returns:
-        Щаблон с дашбордом: Шаблон страницы с доской задач (дашбордом)
+    """
+    Маршрут для отображения панели управления.
     """
     if "user_id" not in request.session:
         return RedirectResponse(url="/login")
@@ -241,18 +185,20 @@ async def dashboard(request: Request):
 
     return templates.TemplateResponse("dashboard.html", {"request": request, "tasks": tasks, "statistics": statistics})
 
-
-@app.post("/add_task")
-async def add_task_post(request: Request, task_data: TaskForm = Depends()):
-    """Метод добавления задачки БД после её создания
-
-    Args:
-        request (Request): Запрос
-        task_data (TaskForm, optional): Форма со страницы со всеми необходимыми параметрами для создания новой записи в БД. Defaults to Depends().
-
-    Returns:
-        Ответ: Сообщение об успешном добавлении задачки в БД и на даш-борд
+@app.get("/add-task")
+async def add_task_get(request: Request):
     """
+    Маршрут для отображения страницы добавления задачи.
+    """
+    # Render the add task page
+    return templates.TemplateResponse("add_task.html", {"request": request})
+
+@app.post("/add-task")
+async def add_task_post(request: Request, task_data: TaskForm = Depends()):
+    """
+    Маршрут для добавления задачи в базу данных.
+    """
+    # Add the task to the database
     db = SessionLocal()
     new_task = Task(
         name=task_data.name,
@@ -266,22 +212,13 @@ async def add_task_post(request: Request, task_data: TaskForm = Depends()):
     db.commit()
     db.refresh(new_task)
     db.close()
-
-    response = RedirectResponse(url="/dashboard", status_code=303)
-    return response  #{"message": "Task added successfully"}
-
+    # Redirect the user to the dashboard page
+    return responses.RedirectResponse(url="/dashboard", status_code=303)
 
 @app.post("/edit-task/{task_id}")
 async def edit_task(request: Request, task_id: int, task_data: TaskForm = Depends()):
-    """Сохранение изменения параметров задачки
-
-    Args:
-        request (Request): Запрос
-        task_id (int): Идентификатор задачки в БД для её обновления
-        task_data (TaskForm, optional): Данные с формы. Defaults to Depends().
-
-    Returns:
-        Перенаправление: Перенаправление на страницу со списком задач
+    """
+    Маршрут для редактирования задачи в базе данных.
     """
     db = SessionLocal()
     task = db.query(Task).filter(Task.id == task_id).first()
@@ -302,16 +239,10 @@ async def edit_task(request: Request, task_id: int, task_data: TaskForm = Depend
 
     return RedirectResponse(url="/dashboard", status_code=303)
 
-
 @app.post("/delete-task/{task_id}")
 async def delete_task(task_id: int):
-    """Подтверждение удаления задачки
-
-    Args:
-        task_id (int): ИД задачки
-
-    Returns:
-        Сообщение: Сообщение об успешном удалении задачи в БД или сообщение, что такая задачка не найдена
+    """
+    Маршрут для удаления задачи из базы данных.
     """
     db = SessionLocal()
     task = db.query(Task).filter(Task.id == task_id).first()
@@ -326,16 +257,10 @@ async def delete_task(task_id: int):
 
     return {"message": "Task deleted successfully"}
 
-
 @app.post("/filter-tasks")
 async def filter_tasks(filter_data: FilterForm = Depends()):
-    """Отправка запроса фильтрации списка задач
-
-    Args:
-        filter_data (FilterForm, optional): Данные с формы для применения фильтра. Defaults to Depends().
-
-    Returns:
-        Ответ: Список задач соответствующих правилам фильтра
+    """
+    Маршрут для фильтрации задач в базе данных.
     """
     db = SessionLocal()
     query = db.query(Task)
@@ -356,3 +281,66 @@ async def filter_tasks(filter_data: FilterForm = Depends()):
     db.close()
 
     return {"tasks": tasks}
+
+@app.get("/logout")
+async def logout_get():
+    """
+    Маршрут для отображения страницы выхода из системы.
+    """
+    # Redirect the user to the login page
+    response=RedirectResponse(url="/", status_code=303)
+    return response
+
+@app.post("/logout")
+async def logout(token: str = Depends(oauth2_scheme)):
+    """
+    Маршрут для выхода из системы.
+    """
+    # Invalidate the user's session or token
+    # ...
+    # Redirect the user to the login page
+    response=RedirectResponse(url="/", status_code=303)
+    return response
+
+from sqlalchemy.exc import IntegrityError
+
+def create_test_user_and_tasks():
+    """
+    Функция для создания тестового пользователя и задач в базе данных.
+    """
+    db = SessionLocal()
+    existing_user = db.query(User).filter(User.username == "testuser").first()
+
+    if existing_user:
+        print("Test user already exists")
+    else:
+        test_user = User(username="testuser", hashed_password=pwd_context.hash("1q2w3e"))
+        db.add(test_user)
+        db.commit()
+        db.refresh(test_user)
+
+        for i in range(10):
+            task = Task(
+                name=f"Task {i+1}",
+                description=f"Description for task {i+1}",
+                category="Test Category",
+                data_created=datetime.now(),
+                data_end_plan=datetime.now() + timedelta(days=7),
+                status="Planned",
+                user_id=test_user.id
+            )
+            db.add(task)
+
+        try:
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            print("Error adding tasks to database")
+
+    db.close()
+
+#create_test_user_and_tasks()
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
