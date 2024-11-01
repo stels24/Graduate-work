@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class Category(models.Model):
+    """
+    Модель категории задач.
+    """
     name = models.CharField(max_length=100)
 
     class Meta:
@@ -11,8 +13,10 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-
 class Task(models.Model):
+    """
+    Модель задачи.
+    """
     STATUS_CHOICES = (
         ('planned', 'Запланирована'),
         ('in_progress', 'В работе'),
