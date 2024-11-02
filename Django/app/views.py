@@ -21,6 +21,7 @@ def add_task(request):
         form = TaskForm()
     return render(request, 'add_task.html', {'form': form, 'categories': categories})
 
+
 def edit_task(request, task_id):
     """
     Представление для редактирования существующей задачи.
@@ -35,6 +36,7 @@ def edit_task(request, task_id):
         form = TaskForm(instance=task)
     return render(request, 'edit_task.html', {'form': form, 'task': task})
 
+
 def delete_task(request, task_id):
     """
     Представление для удаления существующей задачи.
@@ -42,6 +44,7 @@ def delete_task(request, task_id):
     task = get_object_or_404(Task, id=task_id, user=request.user)
     task.delete()
     return redirect('dashboard')
+
 
 def login_view(request):
     """
@@ -56,12 +59,14 @@ def login_view(request):
             return redirect('dashboard')
     return render(request, 'login.html')
 
+
 def dashboard(request):
     """
     Представление для отображения панели управления пользователя.
     """
     tasks = Task.objects.filter(user=request.user)
     return render(request, 'dashboard.html', {'tasks': tasks, 'user': request.user})
+
 
 def delete_task(request, task_id):
     """
@@ -73,6 +78,7 @@ def delete_task(request, task_id):
         return redirect('dashboard')
     return render(request, 'delete_task.html', {'task': task})
 
+
 def index(request):
     """
     Представление для отображения главной страницы.
@@ -80,6 +86,7 @@ def index(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'index.html')
+
 
 def register(request):
     """
