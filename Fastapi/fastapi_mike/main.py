@@ -43,6 +43,7 @@ class User(Base):
     hashed_password = Column(String)
     tasks = relationship("Task", back_populates="user")
 
+
 # Task model
 class Task(Base):
     """
@@ -62,6 +63,7 @@ class Task(Base):
 
 Base.metadata.create_all(bind=engine)
 
+
 # Pydantic models for task form and filter form
 class TaskForm(BaseModel):
     """
@@ -72,6 +74,7 @@ class TaskForm(BaseModel):
     category: str
     data_end_plan: datetime
     status: str
+
 
 class FilterForm(BaseModel):
     """
@@ -90,6 +93,7 @@ async def index(request: Request):
     """
     return templates.TemplateResponse("index.html", {"request": request})
 
+
 @app.post("/login")
 async def login(request: Request, username: str = Form(...), password: str = Form(...)):
     """
@@ -107,12 +111,14 @@ async def login(request: Request, username: str = Form(...), password: str = For
     request.session["user_id"] = user.id
     return response
 
+
 @app.get("/register")
 async def register(request: Request):
     """
     Маршрут для отображения страницы регистрации.
     """
     return templates.TemplateResponse("register.html", {"request": request})
+
 
 @app.post("/register")
 async def register(username: str = Form(...), password: str = Form(...)):
@@ -135,12 +141,14 @@ async def register(username: str = Form(...), password: str = Form(...)):
     response = RedirectResponse(url="/login")
     return response #{"message": "Registration successful"}
 
+
 @app.get("/add-task")
 async def add_task_get(request: Request):
     """
     Маршрут для отображения страницы добавления задачи.
     """
     return templates.TemplateResponse("add_task.html", {"request": request})
+
 
 @app.get("/edit-task/{task_id}")
 async def edit_task(request: Request, task_id: int):
@@ -155,6 +163,7 @@ async def edit_task(request: Request, task_id: int):
         return {"message": "Task not found"}
 
     return templates.TemplateResponse("edit_task.html", {"request": request, "task": task})
+
 
 @app.get("/dashboard")
 async def dashboard(request: Request):
@@ -185,6 +194,7 @@ async def dashboard(request: Request):
 
     return templates.TemplateResponse("dashboard.html", {"request": request, "tasks": tasks, "statistics": statistics})
 
+
 @app.get("/add-task")
 async def add_task_get(request: Request):
     """
@@ -192,6 +202,7 @@ async def add_task_get(request: Request):
     """
     # Render the add task page
     return templates.TemplateResponse("add_task.html", {"request": request})
+
 
 @app.post("/add-task")
 async def add_task_post(request: Request, task_data: TaskForm = Depends()):
@@ -214,6 +225,7 @@ async def add_task_post(request: Request, task_data: TaskForm = Depends()):
     db.close()
     # Redirect the user to the dashboard page
     return responses.RedirectResponse(url="/dashboard", status_code=303)
+
 
 @app.post("/edit-task/{task_id}")
 async def edit_task(request: Request, task_id: int, task_data: TaskForm = Depends()):
@@ -239,6 +251,7 @@ async def edit_task(request: Request, task_id: int, task_data: TaskForm = Depend
 
     return RedirectResponse(url="/dashboard", status_code=303)
 
+
 @app.post("/delete-task/{task_id}")
 async def delete_task(task_id: int):
     """
@@ -256,6 +269,7 @@ async def delete_task(task_id: int):
     db.close()
 
     return {"message": "Task deleted successfully"}
+
 
 @app.post("/filter-tasks")
 async def filter_tasks(filter_data: FilterForm = Depends()):
@@ -282,6 +296,7 @@ async def filter_tasks(filter_data: FilterForm = Depends()):
 
     return {"tasks": tasks}
 
+
 @app.get("/logout")
 async def logout_get():
     """
@@ -290,6 +305,7 @@ async def logout_get():
     # Redirect the user to the login page
     response=RedirectResponse(url="/", status_code=303)
     return response
+
 
 @app.post("/logout")
 async def logout(token: str = Depends(oauth2_scheme)):
@@ -303,6 +319,7 @@ async def logout(token: str = Depends(oauth2_scheme)):
     return response
 
 from sqlalchemy.exc import IntegrityError
+
 
 def create_test_user_and_tasks():
     """
