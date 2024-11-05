@@ -14,6 +14,7 @@ db = SQLAlchemy(app)
 Bootstrap(app)
 login_manager = LoginManager(app)
 
+
 class User(UserMixin, db.Model):
     """
     Модель пользователя для хранения информации о пользователях.
@@ -23,6 +24,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
     tasks = db.relationship('Task', backref='author', lazy=True)
+
 
 class Task(db.Model):
     """
@@ -38,6 +40,7 @@ class Task(db.Model):
     data_end = db.Column(db.DateTime, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+
 class RegistrationForm(FlaskForm):
     """
     Форма для регистрации пользователей.
@@ -48,6 +51,7 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Подтвердите пароль', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Зарегистрироваться')
 
+
 class LoginForm(FlaskForm):
     """
     Форма для входа пользователей.
@@ -55,6 +59,7 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Войти')
+
 
 class TaskForm(FlaskForm):
     """
@@ -67,6 +72,7 @@ class TaskForm(FlaskForm):
     status = SelectField('Статус', choices=[('запланирована', 'запланирована'), ('в работе', 'в работе'), ('выполнена', 'выполнена')], default='запланирована')
     submit = SubmitField('Сохранить задачу')
 
+
 @app.route("/")
 def home():
     """
@@ -77,12 +83,14 @@ def home():
     else:
         return redirect(url_for('login'))
 
+
 @login_manager.user_loader
 def load_user(user_id):
     """
     Функция загрузки пользователя для Flask-Login.
     """
     return User.query.get(int(user_id))
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -99,6 +107,7 @@ def register():
         flash('Ваша учетная запись была создана! Теперь вы можете войти в систему', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Регистрация', form=form)
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -117,6 +126,7 @@ def login():
             flash('Вход не удался. Пожалуйста, проверьте адрес электронной почты и пароль', 'danger')
     return render_template('login.html', title='Вход', form=form)
 
+
 @app.route("/logout")
 def logout():
     """
@@ -124,6 +134,7 @@ def logout():
     """
     logout_user()
     return redirect(url_for('login'))
+
 
 @app.route("/dashboard")
 def dashboard():
@@ -135,6 +146,7 @@ def dashboard():
         return render_template('dashboard.html', tasks=tasks)
     else:
         return redirect(url_for('login'))
+
 
 @app.route("/task/new", methods=['GET', 'POST'])
 @login_required
@@ -151,6 +163,7 @@ def new_task():
         return redirect(url_for('dashboard'))
     return render_template('create_task.html', title='Новая задача', form=form, legend='Новая задача')
 
+
 @app.route("/task/<int:task_id>")
 @login_required
 def task(task_id):
@@ -161,6 +174,7 @@ def task(task_id):
     if task.author != current_user:
         abort(403)
     return render_template('task.html', title=task.name, task=task)
+
 
 @app.route("/task/<int:task_id>/update", methods=['GET', 'POST'])
 @login_required
@@ -189,6 +203,7 @@ def update_task(task_id):
         form.status.data = task.status
     return render_template('create_task.html', title='Обновить задачу', form=form, legend='Обновить задачу')
 
+
 @app.route("/task/<int:task_id>/delete", methods=['POST'])
 @login_required
 def delete_task(task_id):
@@ -202,6 +217,7 @@ def delete_task(task_id):
     db.session.commit()
     flash('Ваша задача была удалена!', 'success')
     return redirect(url_for('dashboard'))
+
 
 if __name__ == '__main__':
     with app.app_context():
